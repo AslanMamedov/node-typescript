@@ -5,12 +5,13 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
+
+import restApiRoutes from './routes/restApiRoutes';
+
 const app: Express = express();
 const PORT = process.env.PORT || 5000;
 
-enum Message {
-	message = 'Hello world Node Typescript',
-}
+
 morgan(':method :url :status :res[content-length] - :response-time ms');
 
 app.use(
@@ -35,11 +36,10 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(morgan('dev'));
 
-app.get('/', (req: Request, res: Response, next: NextFunction) => {
-	res.json({ message: 'Aslan' });
-});
-(async () => {
 
+app.use('/api', restApiRoutes);
+
+(async () => {
 	try {
 		app.listen(PORT, () => {
 			console.log(`Server was started on the http://localhost:${PORT}`);
