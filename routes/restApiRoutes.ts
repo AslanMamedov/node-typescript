@@ -1,44 +1,16 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router } from 'express';
 const router = Router();
-import fs from 'fs';
-import path from 'path';
-import { v4 as uuid } from 'uuid';
 
-const dbFolderPath = path.dirname(__dirname) + '/db';
-const jsonFilePath = dbFolderPath + '/db.json';
+import { getAll, getOne, create, updateOne, deleteOne } from '../controllers/restApi';
 
-interface IBody {
-	id: string;
-	[key: string]: any;
-}
+router.get('/', getAll);
 
-router.post('/', (req: Request, res: Response, next: NextFunction): void => {
-	const jsonData: IBody = req.body;
-	jsonData['id'] = uuid();
+router.get('/:id', getOne);
 
-	const arr: IBody[] = [];
-	arr.push(jsonData);
-	if (!fs.existsSync(dbFolderPath)) {
-		fs.mkdir(dbFolderPath, (error): void => {
-			if (error) throw new Error(error.message);
-		});
-	}
-	if (!fs.existsSync(jsonFilePath)) fs.writeFileSync(jsonFilePath, JSON.stringify([], null, 2), 'utf8');
+router.post('/', create);
 
-	fs.access(jsonFilePath, (error) => {
-		if (!error) {
-			fs.readFile(jsonFilePath, 'utf8', (error, data): void => {
-				if (error) throw new Error(error.message);
-				const parceData: any[] = JSON.parse(data);
-				parceData.push(...arr);
-				fs.writeFile(jsonFilePath, JSON.stringify([...parceData], null, 4), (error): void => {
-					if (error) throw new Error(error.message);
-				});
-			});
-		}
-	});
+router.patch('/:id', updateOne);
 
-	res.json({ message: 'Done' }).status(201);
-});
+router.delete('/:id', deleteOne);
 
 export default router;
